@@ -1,34 +1,14 @@
-#!/usr/bin/env node
-
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { createSpinner } from "nanospinner";
-import figlet from "figlet";
 import axios from "axios";
+import figlet from "figlet";
 
-let username;
 let points = 0;
 
 const sleep = (ms = 2000) => new Promise((r) => setTimeout(r, ms));
 
-const askName = async () => {
-  console.log(
-    chalk.green(figlet.textSync("Web Dev Trivia", { horizontalLayout: "full" }))
-  );
-
-  const answers = await inquirer.prompt({
-    name: "username",
-    type: "input",
-    message: chalk.blue.bold(`What's your name, web warrior?`),
-    default() {
-      return "Dev";
-    },
-  });
-
-  username = answers.username;
-};
-
-const handleAnswer = async (isCorrect, correctAnswer) => {
+const handleAnswer = async (isCorrect, correctAnswer, username) => {
   const spinner = createSpinner("Checking answer...").start();
   await sleep();
 
@@ -47,7 +27,7 @@ const handleAnswer = async (isCorrect, correctAnswer) => {
   }
 };
 
-const getQuestionFromAPI = async () => {
+const getQuestionFromAPI = async (username) => {
   const { data } = await axios.get(
     "https://opentdb.com/api.php?amount=1&category=18&difficulty=medium&type=multiple"
   );
@@ -65,15 +45,16 @@ const getQuestionFromAPI = async () => {
 
   return handleAnswer(
     answers.question == correct_answer,
-    chalk.green(correct_answer)
+    chalk.green(correct_answer),
+    username
   );
 };
 
-const winner = () => {
+const winner = (username) => {
   console.clear();
   console.log(
     chalk.green(
-      figlet.textSync(`Congrats, Dev!`, {
+      figlet.textSync(`Congrats, ${username}!`, {
         font: "Small",
         horizontalLayout: "default",
         verticalLayout: "default",
@@ -81,44 +62,16 @@ const winner = () => {
     )
   );
   console.log(
-    chalk.green.bold(`🎉🎉🎉 You scored ${points} point(s), web wizard! 🎉🎉🎉`)
+    chalk.green.bold(`🎉🎉🎉 You scored ${points} points, web wizard! 🎉🎉🎉`)
   );
 };
 
-const playAgain = async () => {
-  const answer = await inquirer.prompt({
-    name: "playAgain",
-    type: "confirm",
-    message: "Do you want to play again?",
-  });
-
-  if (answer.playAgain) {
-    points = 0;
-    playGame();
-  } else {
-    console.log(chalk.green.bold(`Thanks for playing, ${username}!`));
-    process.exit(0);
-  }
-};
-
-const playGame = async () => {
-  await askName();
-
-  console.log(
-    chalk.green(
-      `Welcome ${username}! Let's test your web development knowledge with some trivia.`
-    )
-  );
-
-  for (let i = 0; i < 1; i++) {
+export const playGame = async (username) => {
+  for (let i = 0; i < 3; i++) {
     console.log(chalk.blue(`\nQuestion ${i + 1}:`));
-    await getQuestionFromAPI();
+    await getQuestionFromAPI(username);
     console.log(chalk.yellow(`Current Score: ${points}`));
   }
 
-  winner();
-
-  await playAgain();
+  winner(username);
 };
-
-playGame();
