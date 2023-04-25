@@ -73,8 +73,8 @@ const winner = () => {
   console.clear();
   console.log(
     chalk.green(
-      figlet.textSync(`Congratulations, ${username}!`, {
-        font: "Isometric1",
+      figlet.textSync(`Congrats, Dev!`, {
+        font: "Small",
         horizontalLayout: "default",
         verticalLayout: "default",
       })
@@ -83,6 +83,22 @@ const winner = () => {
   console.log(
     chalk.green.bold(`🎉🎉🎉 You scored ${points} point(s), web wizard! 🎉🎉🎉`)
   );
+};
+
+const playAgain = async () => {
+  const answer = await inquirer.prompt({
+    name: "playAgain",
+    type: "confirm",
+    message: "Do you want to play again?",
+  });
+
+  if (answer.playAgain) {
+    points = 0;
+    playGame();
+  } else {
+    console.log(chalk.green.bold(`Thanks for playing, ${username}!`));
+    process.exit(0);
+  }
 };
 
 const playGame = async () => {
@@ -94,13 +110,15 @@ const playGame = async () => {
     )
   );
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 1; i++) {
     console.log(chalk.blue(`\nQuestion ${i + 1}:`));
     await getQuestionFromAPI();
     console.log(chalk.yellow(`Current Score: ${points}`));
   }
 
   winner();
+
+  await playAgain();
 };
 
 playGame();
