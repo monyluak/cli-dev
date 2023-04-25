@@ -33,7 +33,20 @@ const startGame = async () => {
     )
   );
 
-  await playGame(username);
+  let playAgain = true;
+
+  while (playAgain) {
+    await playGame(username);
+
+    const { playAgainAnswer } = await inquirer.prompt({
+      name: "playAgainAnswer",
+      type: "confirm",
+      message: chalk.blue.bold(`Do you want to play again?`),
+      default: true,
+    });
+
+    playAgain = playAgainAnswer;
+  }
 
   console.log(chalk.green.bold(`Thanks for playing, ${username}!`));
   process.exit(0);
